@@ -27,7 +27,6 @@ connection.connect((error) => {
 });
 
 
-
 const qy = util.promisify(connection.query).bind(connection);
 
 app.get('/api/personas', async (req, res) => {
@@ -87,7 +86,6 @@ try {
 
     response = await qy(query, [nombre, apellido, dni]);
 
-    //res.send('La persona fue agregada');
 
     const registro =  await qy('select * from persona where id=?', [response.insertId]);
     
@@ -101,14 +99,6 @@ try {
 }
 
 });
-
-
-app.put('/api/personas/:id', (req, res)=>{
-
-
-
-})
-
 
 
 app.listen(port, () => {
