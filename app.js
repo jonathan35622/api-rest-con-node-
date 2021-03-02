@@ -1,6 +1,8 @@
 
 const express = require('express');
+
 const mysql = require('mysql');
+
 const app = express();
 
 const util = require('util');
@@ -25,7 +27,6 @@ connection.connect((error) => {
         throw error();
     }
 });
-
 
 const qy = util.promisify(connection.query).bind(connection);
 
@@ -70,7 +71,9 @@ app.post('/api/persona', async (req, res) => {
 try {
 
     const nombre = req.body.nombre;
+
     const apellido = req.body.apellido;
+
     const dni = req.body.dni;
    
     let query = 'select dni from persona where dni=?';
@@ -86,10 +89,8 @@ try {
 
     response = await qy(query, [nombre, apellido, dni]);
 
-
     const registro =  await qy('select * from persona where id=?', [response.insertId]);
     
-
     res.json(registro[0]);
 
 } catch (e) {
@@ -100,6 +101,58 @@ try {
 
 });
 
+app.put('/api/personas/:id', async (req,res)=>{
+
+    try {
+
+        const nombre = req.body.nombre;
+
+        const apellido = req.body.apellido;
+
+        const dni = req.body.dni;
+        
+        const query = 'update persona set nombre=?, apellido=? , dni=? where id=?';
+
+        const response = await qy(query , [nombre, apellido, dni, req.params.id]);
+
+        const modification = await qy('select * from persona where id', req.params.id);
+
+        res.json(modification[0]);
+        
+    } catch (e) {
+
+        console.error(e.message);
+        res.status(413).send({"error": e.message});  
+    }
+
+});
+
+
+app.delete('/api/personas/:id', async (req, res)=>{
+
+try {
+ 
+    let query = 'select * from persona where id=?';
+    let response = await qy(query,[req.params.id] );
+
+    if(response.length >0 ){
+     
+        query = 'delete from persona where id=?';
+
+        response = await qy(query, [req.params.id]);
+
+        res.json(response);
+    } else{
+
+        res.status(404).send();
+    }
+    
+
+} catch (e) {
+    console.log(e.message);   
+}
+
+});
 
 app.listen(port, () => {
 
